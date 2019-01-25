@@ -112,7 +112,7 @@ class AutoHyperOptimizer:
     setting on a small fraction of data to determine the fitness. Hyperopt attempts
     to find hyper-parameters that minimize (1.0-AUC) on the validation data.
     
-    We finallty compare the cross-validation AUC of the model trained with 
+    We finally compare the cross-validation AUC of the model trained with 
     fixed hyper-parameter set with the AUC of the model trained using hyper-parameters
     returned by hyperopt, and choose the one with higher AUC as the optimal hyper-parameter
     set.
@@ -386,6 +386,13 @@ class StreamSaveRetrainPredictor:
         numeric_cols = datainfo['loaded_feat_types'][1]
         categorical_cols = datainfo['loaded_feat_types'][2]
         multicategorical_cols = datainfo['loaded_feat_types'][3]
+
+        print('partial_fit')
+        print(date_cols)
+        print(numeric_cols)
+        print(categorical_cols)
+        print(multicategorical_cols)
+
         ## date time coulumn indices ###  
         time_cols = np.arange(0,date_cols) 
         ## categorical and multi-categorical column indices ###
@@ -461,6 +468,12 @@ class StreamSaveRetrainPredictor:
         numeric_cols = datainfo['loaded_feat_types'][1]
         categorical_cols = datainfo['loaded_feat_types'][2]
         multicategorical_cols = datainfo['loaded_feat_types'][3]
+
+        print('predict')
+        print(date_cols)
+        print(numeric_cols)
+        print(categorical_cols)
+        print(multicategorical_cols)
 
         if categorical_cols >0:
         ### replace missing values with string 'nan' ###
