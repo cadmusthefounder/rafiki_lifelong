@@ -1,2 +1,4 @@
 .DS_Store
 AutoML3*
+*.pyc
+*.pyo
