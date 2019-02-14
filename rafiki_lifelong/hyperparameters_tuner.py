@@ -7,7 +7,7 @@ from libscores import *
 
 class HyperparametersTuner:
 
-    def __init__(self,max_samples=50000,max_evaluations=25,seed=1,parameter_space={}):
+    def __init__(self,max_evaluations=25,seed=1,parameter_space={}):
         self.max_evaluations = max_evaluations
         self.test_size = 0.25 ## fraction of data used for internal validation
         self.shuffle = False
@@ -22,7 +22,6 @@ class HyperparametersTuner:
         model.fit(self.Xe_train,self.ys_train)
         mypreds = model.predict_proba(self.Xe_test)[:,1]
         auc = auc_metric(self.ys_test.reshape(-1,1),mypreds.reshape(-1,1))
-        print('AutoGBT[AutoHyperOptimizer] auc=',auc)
         return{'loss': (1-auc), 'status': STATUS_OK }
 
     def fit(self,X,y,indicator): 

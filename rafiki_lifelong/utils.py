@@ -1,8 +1,18 @@
 import pip
 import time
+from scipy.sparse import coo_matrix
+import numpy as np
 
 def pip_install(package):
     pip.main(['install', package])
+
+def onehot_sparse(a):
+    S = a.shape
+    N = a.size
+    L = a.max()+1
+    data = np.ones(N,dtype=int)
+    sparse_mat = coo_matrix((data,(np.arange(N),a.ravel())), shape=(N,L)).toarray()
+    return sparse_mat.reshape(S[0], L * S[1])
 
 def extract(data_info, time_info):
     time_budget = data_info['time_budget']

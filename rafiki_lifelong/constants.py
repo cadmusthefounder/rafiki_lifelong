@@ -1,0 +1,3 @@
+class Algo:
+    ORIGINAL = 'ORIGINAL'
+    FACEBOOK_LR = 'FACEBOOK_LR'
