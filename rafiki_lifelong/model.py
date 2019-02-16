@@ -34,8 +34,8 @@ class Model:
 
         # Settings
         self._dataset_budget_threshold = 0.8
-        self._max_train_data = 400000
-        self.batch_size = 100000
+        self._max_train_data = 10000
+        self.batch_size = 100
         self.delta_n_estimators = 100
         self.delta_num_leaves = 20
         self.delta_learning_rate = 0.005
@@ -212,7 +212,7 @@ class Model:
                 del probs
                 del new_probs
                 del actual_probs
-            return np.array(results).T
+            return results
         return []
 
     def _convert_nan_to_num(self, F, info_dict):
