@@ -201,6 +201,9 @@ class Model:
             actual_probs = self._classifier2.predict_proba(new_probs)[:,1]
             return actual_probs
         else:
+            print(204)
+            print('BATCH')
+            print('data.shape: {}'.format(data.shape))
             results = np.array([]) ## for chunking results to handle memory limit
             for i in range(0, data.shape[0], self.batch_size):
                 Xsplit = data[i:(i+self.batch_size),:]
@@ -212,6 +215,8 @@ class Model:
                 del probs
                 del new_probs
                 del actual_probs
+
+            print('results.shape: {}'.format(results.shape))
             return results
         return []
 
