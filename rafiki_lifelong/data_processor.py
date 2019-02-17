@@ -58,29 +58,29 @@ class DataProcessor:
             elif self._is_numerical_col(col_index):
                 result.append(data[:,col_index])
 
-        # for i in range(len(self._time_col_indices)):
-        #     for j in range(i+1, len(self._time_col_indices)):
-        #         if len(np.nonzero(data[:,i])) > 0 and len(np.nonzero(data[:,j])) > 0:
-        #             result.append(data[:,i] - data[:,j])
+        for i in range(len(self._time_col_indices)):
+            for j in range(i+1, len(self._time_col_indices)):
+                if len(np.nonzero(data[:,i])) > 0 and len(np.nonzero(data[:,j])) > 0:
+                    result.append(data[:,i] - data[:,j])
 
-        #     dates = pd.DatetimeIndex(data[:,i])
-        #     dayofweek = dates.dayofweek.values
-        #     dayofyear = dates.dayofyear.values
-        #     month = dates.month.values
-        #     weekofyear = dates.weekofyear.values
-        #     day = dates.day.values
-        #     hour = dates.hour.values
-        #     minute = dates.minute.values
-        #     year = dates.year.values
+            dates = pd.DatetimeIndex(data[:,i])
+            dayofweek = dates.dayofweek.values
+            dayofyear = dates.dayofyear.values
+            month = dates.month.values
+            weekofyear = dates.weekofyear.values
+            day = dates.day.values
+            hour = dates.hour.values
+            minute = dates.minute.values
+            year = dates.year.values
 
-        #     result.append(dayofweek)
-        #     result.append(dayofyear)
-        #     result.append(month)
-        #     result.append(weekofyear)
-        #     result.append(year)
-        #     result.append(day)
-        #     result.append(hour)
-        #     result.append(minute)
+            result.append(dayofweek)
+            result.append(dayofyear)
+            result.append(month)
+            result.append(weekofyear)
+            result.append(year)
+            result.append(day)
+            result.append(hour)
+            result.append(minute)
 
         return np.array(result).T
 
