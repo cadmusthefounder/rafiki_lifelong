@@ -20,7 +20,7 @@ from sklearn.linear_model import LogisticRegression
 from stream_processor_old import *
 
 params = {
-    'algo': Algo.FACEBOOK_LR
+    'algo': Algo.ORIGINAL
 }
 
 class Model:
@@ -48,6 +48,17 @@ class Model:
             self.delta_bagging_fraction = 0.1
             self.delta_bagging_freq = 1
             self.max_evaluation = 30    
+            self.param_choice_fixed = { 
+                'n_estimators': 400, 
+                'learning_rate': 0.01, 
+                'num_leaves': 50, 
+                'feature_fraction': 0.6, 
+                'bagging_fraction': 0.6, 
+                'bagging_freq': 2, 
+                'boosting_type': 'gbdt', 
+                'objective': 'binary', 
+                'metric': 'auc' 
+            }
         elif params['algo'] == Algo.FACEBOOK_LR:
             self._dataset_budget_threshold = 0.8
             self._max_train_data = 200000
@@ -60,6 +71,17 @@ class Model:
             self.delta_bagging_fraction = 0.1
             self.delta_bagging_freq = 1
             self.max_evaluation = 30    
+            self.param_choice_fixed = { 
+                'n_estimators': 200, 
+                'learning_rate': 0.01, 
+                'num_leaves': 30, 
+                'feature_fraction': 0.6, 
+                'bagging_fraction': 0.6, 
+                'bagging_freq': 2, 
+                'boosting_type': 'gbdt', 
+                'objective': 'binary', 
+                'metric': 'auc' 
+            }
 
         self._train_data = np.array([])
         self._train_labels = np.array([])
