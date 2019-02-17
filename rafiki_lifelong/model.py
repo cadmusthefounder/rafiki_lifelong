@@ -35,11 +35,13 @@ class Model:
         # pip_install('hyperopt')
         # pip_install('lightgbm')
 
+        print('Using algo: {}'.format(params['algo']))
+
         # Settings
         if params['algo'] == Algo.ORIGINAL:
             self._dataset_budget_threshold = 0.8
-            self._max_train_data = 400000
-            self.batch_size = 100000
+            self._max_train_data = 200000
+            self.batch_size = 50000
             self.delta_n_estimators = 100
             self.delta_num_leaves = 20
             self.delta_learning_rate = 0.005
@@ -326,17 +328,7 @@ class Model:
 
     def _find_best_hyperparameters(self):
 
-        param_choice_fixed = { 
-            'n_estimators':400, 
-            'learning_rate':0.01, 
-            'num_leaves':50, 
-            'feature_fraction':0.6, 
-            'bagging_fraction':0.6, 
-            'bagging_freq':2, 
-            'boosting_type':'gbdt', 
-            'objective':'binary', 
-            'metric':'auc' 
-        }
+        param_choice_fixed = self.param_choice_fixed
         
         autohyper = HyperparametersTuner(parameter_space=param_choice_fixed)
         best_score_choice1 = autohyper.fit(self._transformed_train_data, self._transformed_train_labels.ravel(), 1)
