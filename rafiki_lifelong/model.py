@@ -138,13 +138,18 @@ class Model:
             print('self._train_labels.shape: {}'.format(self._train_labels.shape))
 
             if self._too_much_training_data():
-                remove_percentage = 1.0 - (float(self._max_train_data) / self._train_data.size)
+                # remove_percentage = 1.0 - (float(self._max_train_data) / self._train_data.size)
+                remove_percentage = self._train_data.size / float(self._max_train_data) - 1.0
+                print('remove_percentage: {}'.format(remove_percentage))
                 current_train_data, current_train_labels = self._sampler.random_sample_in_order(self._train_data, \
                                                                                                 self._train_labels.reshape(-1,1), \
                                                                                                 remove_percentage)
                 print('current_train_data.shape: {}'.format(current_train_data.shape))
                 print('current_train_labels: {}'.format(current_train_labels.shape))
-                # self._train_data, self._train_labels = current_train_data, current_train_labels
+                self._train_data, self._train_labels = current_train_data, current_train_labels.reshape((-1,))
+                
+                print('new self._train_data.shape: {}'.format(self._train_data.shape))
+                print('new self._train_labels.shape: {}'.format(self._train_labels.shape))
 
             self._transformed_train_data = self._data_processor.transform_data(current_train_data)
             self._transformed_train_labels = current_train_labels
