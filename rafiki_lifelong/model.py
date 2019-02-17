@@ -135,7 +135,7 @@ class Model:
             current_train_labels = self._train_labels
 
             print('self._train_data.shape: {}'.format(self._train_data.shape))
-            print('self._train_labels.shape: {}'.foramt(self._train_labels.shape))
+            print('self._train_labels.shape: {}'.format(self._train_labels.shape))
 
             if self._too_much_training_data():
                 remove_percentage = 1.0 - (float(self._max_train_data) / self._train_data.size)
