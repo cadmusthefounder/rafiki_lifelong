@@ -63,7 +63,7 @@ class Model:
             }
         elif params['algo'] == Algo.FACEBOOK_LR:
             self._dataset_budget_threshold = 0.8
-            self._max_train_data = 75000
+            self._max_train_data = 50000
             self.batch_size = 25000
             self.delta_n_estimators = 50
             self.delta_num_leaves = 10
@@ -76,7 +76,7 @@ class Model:
             self.param_choice_fixed = { 
                 'n_estimators': 75, 
                 'learning_rate': 0.01, 
-                'num_leaves': 10, 
+                'num_leaves': 15, 
                 'feature_fraction': 0.6, 
                 'bagging_fraction': 0.6, 
                 'bagging_freq': 2, 
