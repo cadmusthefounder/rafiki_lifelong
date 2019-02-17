@@ -11,13 +11,16 @@ from sampler import Sampler
 pip_install('hyperopt')
 pip_install('lightgbm')
 pip_install('scipy')
+
 from hyperopt import hp
 from hyperparameters_tuner import HyperparametersTuner
 from lightgbm import LGBMClassifier
 from sklearn.linear_model import LogisticRegression
 
+from stream_processor_old import *
+
 params = {
-    'algo': Algo.FACEBOOK_LR
+    'algo': Algo.OLD_CODE
 }
 
 class Model:
@@ -54,6 +57,8 @@ class Model:
         self._data_processor = DataProcessor(info_dict)
         self._sampler = Sampler()
 
+        self.mdl = StreamSaveRetrainPredictor()
+
     def fit(self, F, y, data_info, time_info):
         '''
         This function trains the model parameters.
@@ -69,7 +74,9 @@ class Model:
         info_dict = extract(data_info, time_info)
         print_time_info(info_dict)
 
-        if params['algo'] == Algo.ORIGINAL:
+        if params['algo'] == Algo.OLD_CODE:
+            return self.mdl.partial_fit(F, y, data_info, time_info)
+        elif params['algo'] == Algo.ORIGINAL:
             return self._original_fit(F, y, info_dict)
         elif params['algo'] == Algo.FACEBOOK_LR:
             return self._facebook_lr_fit(F, y, info_dict)
@@ -87,7 +94,9 @@ class Model:
         info_dict = extract(data_info, time_info)
         print_time_info(info_dict) 
         
-        if params['algo'] == Algo.ORIGINAL:
+        if params['algo'] == Algo.OLD_CODE:
+            return self.mdl.predict(F, data_info, time_info)
+        elif params['algo'] == Algo.ORIGINAL:
             return self._original_predict(F, info_dict)
         elif params['algo'] == Algo.FACEBOOK_LR:
             return self._facebook_lr_predict(F, info_dict)
