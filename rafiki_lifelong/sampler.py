@@ -38,6 +38,6 @@ class Sampler:
 
         num_train_samples = len(data)
         rem_samples = int(num_train_samples * remove_percentage)
-        # random.seed(seed)
+        random.seed(seed)
         skip = sorted(random.sample(range(num_train_samples), num_train_samples - rem_samples))
         return data[skip,:], labels[skip,:]

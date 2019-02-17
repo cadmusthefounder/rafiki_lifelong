@@ -37,8 +37,8 @@ class Model:
 
         # Settings
         self._dataset_budget_threshold = 0.8
-        self._max_train_data = 10000
-        self.batch_size = 100
+        self._max_train_data = 400000
+        self.batch_size = 100000
         self.delta_n_estimators = 100
         self.delta_num_leaves = 20
         self.delta_learning_rate = 0.005
@@ -138,6 +138,7 @@ class Model:
                 current_train_data, current_train_labels = self._sampler.random_sample_in_order(self._train_data, \
                                                                                                 self._train_labels.reshape(-1,1), \
                                                                                                 remove_percentage)
+                self._train_data, self._train_labels = current_train_data, current_train_labels
 
             self._transformed_train_data = self._data_processor.transform_data(current_train_data)
             self._transformed_train_labels = current_train_labels
@@ -146,18 +147,24 @@ class Model:
             
             self._classifier = LGBMClassifier(random_state=20, min_data=1, min_data_in_bin=1)
             self._classifier.set_params(**self.best_hyperparams) 
-            self._classifier.fit(self._transformed_train_data, current_train_labels.ravel())
+            self._classifier.fit(self._transformed_train_data, self._transformed_train_labels.ravel())
         
         if data.shape[0] <= self.batch_size: ### if it is relatively small array
             probs = self._classifier.predict_proba(self._data_processor.transform_data(data))[:,1]
             return probs
         else:
+            print(156)
+            print('BATCH')
+            print('data.shape: {}'.format(data.shape))
             results = np.array([]) ## for chunking results to handle memory limit
             for i in range(0, data.shape[0], self.batch_size):
                 Xsplit = data[i:(i+self.batch_size),:]
                 results = np.append(results,self._classifier.predict_proba(self._data_processor.transform_data(Xsplit))[:,1])
                 del Xsplit
-            return np.array(results).T
+
+            print('results.shape: {}'.format(results.shape))
+            print('resutls.transposed.shape: {}'.format(results.T.shape))
+            return results.T
         return []
 
     def _facebook_lr_fit(self, F, y, info_dict):
@@ -187,6 +194,7 @@ class Model:
                 current_train_data, current_train_labels = self._sampler.random_sample_in_order(self._train_data, \
                                                                                                 self._train_labels.reshape(-1,1), \
                                                                                                 remove_percentage)
+                self._train_data, self._train_labels = current_train_data, current_train_labels
 
             self._transformed_train_data = self._data_processor.transform_data(current_train_data)
             self._transformed_train_labels = current_train_labels
@@ -226,6 +234,7 @@ class Model:
                 del actual_probs
 
             print('results.shape: {}'.format(results.shape))
+            print('resutls.transposed.shape: {}'.format(results.T.shape))
             return results
         return []
 
