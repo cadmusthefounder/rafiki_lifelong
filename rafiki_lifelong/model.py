@@ -20,7 +20,7 @@ from sklearn.linear_model import LogisticRegression
 from stream_processor_old import *
 
 params = {
-    'algo': Algo.ORIGINAL
+    'algo': Algo.FACEBOOK_LR
 }
 
 class Model:
