@@ -133,12 +133,18 @@ class Model:
 
             current_train_data = self._train_data
             current_train_labels = self._train_labels
+
+            print('self._train_data.shape: {}'.format(self._train_data.shape))
+            print('self._train_labels.shape: {}'.foramt(self._train_labels.shape))
+
             if self._too_much_training_data():
                 remove_percentage = 1.0 - (float(self._max_train_data) / self._train_data.size)
                 current_train_data, current_train_labels = self._sampler.random_sample_in_order(self._train_data, \
                                                                                                 self._train_labels.reshape(-1,1), \
                                                                                                 remove_percentage)
-                self._train_data, self._train_labels = current_train_data, current_train_labels
+                print('current_train_data.shape: {}'.format(current_train_data.shape))
+                print('current_train_labels: {}'.format(current_train_labels.shape))
+                # self._train_data, self._train_labels = current_train_data, current_train_labels
 
             self._transformed_train_data = self._data_processor.transform_data(current_train_data)
             self._transformed_train_labels = current_train_labels
@@ -194,7 +200,7 @@ class Model:
                 current_train_data, current_train_labels = self._sampler.random_sample_in_order(self._train_data, \
                                                                                                 self._train_labels.reshape(-1,1), \
                                                                                                 remove_percentage)
-                self._train_data, self._train_labels = current_train_data, current_train_labels
+                # self._train_data, self._train_labels = current_train_data, current_train_labels
 
             self._transformed_train_data = self._data_processor.transform_data(current_train_data)
             self._transformed_train_labels = current_train_labels
