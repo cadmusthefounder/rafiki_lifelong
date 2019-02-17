@@ -36,17 +36,30 @@ class Model:
         # pip_install('lightgbm')
 
         # Settings
-        self._dataset_budget_threshold = 0.8
-        self._max_train_data = 400000
-        self.batch_size = 100000
-        self.delta_n_estimators = 100
-        self.delta_num_leaves = 20
-        self.delta_learning_rate = 0.005
-        self.delta_max_depth = 1
-        self.delta_feature_fraction = 0.1
-        self.delta_bagging_fraction = 0.1
-        self.delta_bagging_freq = 1
-        self.max_evaluation = 30    
+        if params['algo'] == Algo.ORIGINAL:
+            self._dataset_budget_threshold = 0.8
+            self._max_train_data = 400000
+            self.batch_size = 100000
+            self.delta_n_estimators = 100
+            self.delta_num_leaves = 20
+            self.delta_learning_rate = 0.005
+            self.delta_max_depth = 1
+            self.delta_feature_fraction = 0.1
+            self.delta_bagging_fraction = 0.1
+            self.delta_bagging_freq = 1
+            self.max_evaluation = 30    
+        elif params['algo'] == Algo.FACEBOOK_LR:
+            self._dataset_budget_threshold = 0.8
+            self._max_train_data = 200000
+            self.batch_size = 50000
+            self.delta_n_estimators = 100
+            self.delta_num_leaves = 20
+            self.delta_learning_rate = 0.005
+            self.delta_max_depth = 1
+            self.delta_feature_fraction = 0.1
+            self.delta_bagging_fraction = 0.1
+            self.delta_bagging_freq = 1
+            self.max_evaluation = 30    
 
         self._train_data = np.array([])
         self._train_labels = np.array([])
