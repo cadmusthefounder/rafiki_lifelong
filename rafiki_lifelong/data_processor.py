@@ -88,7 +88,7 @@ class DataProcessor:
         date_col = data[:,col_index].astype(float)
         non_zero_indices = np.nonzero(date_col)[0]
 
-        if non_zero_indices.size != 0:
+        if len(non_zero_indices) != 0:
             if self._time_map[col_index] == 0:
                 self._time_map[col_index] = np.min(date_col[non_zero_indices])
             else:
