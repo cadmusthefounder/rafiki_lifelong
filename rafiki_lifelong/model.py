@@ -118,7 +118,7 @@ class Model:
 
         sampled_data, sampled_labels = self._sampler.majority_undersampling(data, y)
 
-        if self._train_data.size == 0 and self._train_labels.size == 0:
+        if len(self._train_data) == 0 and len(self._train_labels) == 0:
             self._train_data = sampled_data
             self._train_labels = sampled_labels
         else:
@@ -137,11 +137,12 @@ class Model:
             print('self._train_data.shape: {}'.format(self._train_data.shape))
             print('self._train_labels.shape: {}'.format(self._train_labels.shape))
             print('self._train_data.size: {}'.format(self._train_data.size))
+            print('len(self._train_data): {}'.format(len(self._train_data)))
             print('self._max_train_data: {}'.format(self._max_train_data))
 
             if self._too_much_training_data():
                 # remove_percentage = 1.0 - (float(self._max_train_data) / self._train_data.size)
-                remove_percentage = self._train_data.size / float(self._max_train_data) - 1.0
+                remove_percentage = self._train_data.shape[0] / float(self._max_train_data) - 1.0
                 print('remove_percentage: {}'.format(remove_percentage))
                 current_train_data, current_train_labels = self._sampler.random_sample_in_order(self._train_data, \
                                                                                                 self._train_labels.reshape(-1,1), \
@@ -187,7 +188,7 @@ class Model:
 
         sampled_data, sampled_labels = self._sampler.majority_undersampling(data, y)
 
-        if self._train_data.size == 0 and self._train_labels.size == 0:
+        if len(self._train_data) == 0 and len(self._train_labels) == 0:
             self._train_data = sampled_data
             self._train_labels = sampled_labels
         else:
@@ -273,7 +274,7 @@ class Model:
         return info_dict['dataset_time_spent'] < info_dict['time_budget'] * self._dataset_budget_threshold
 
     def _too_much_training_data(self):
-        return self._train_data.size > self._max_train_data
+        return self._train_data.shape[0] > self._max_train_data
 
     def _find_best_hyperparameters(self):
 
