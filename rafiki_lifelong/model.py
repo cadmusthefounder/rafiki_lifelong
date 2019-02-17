@@ -20,7 +20,7 @@ from sklearn.linear_model import LogisticRegression
 from stream_processor_old import *
 
 params = {
-    'algo': Algo.OLD_CODE
+    'algo': Algo.ORIGINAL
 }
 
 class Model:
