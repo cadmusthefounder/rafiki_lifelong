@@ -44,6 +44,18 @@ class DataProcessor:
             vals = np.array(list(self._feature_map[col_index].values())).astype(float)
             self._frequency_map[col_index] = dict(zip(keys,vals))
 
+    def simple_transform_data(self, data):
+        result = []
+        for col_index in range(data.shape[1]):
+            if self._is_numerical_col(col_index):
+                result.append(data[:,col_index])
+
+        result = np.array(result)
+        print('Transformed Data')
+        print('result.shape: {}'.format(result.shape))
+        print('result.T.shape: {}'.format(result.T.shape))
+        return result.T
+
     def transform_data(self, data):
         result = []
         for col_index in range(data.shape[1]):

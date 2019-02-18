@@ -337,11 +337,14 @@ class Model:
         if self._has_sufficient_time(info_dict) or self._classifier is None:
             self._classifier = LGBMClassifier(random_state=20, min_data=1, min_data_in_bin=1)
             self._classifier.set_params(**self.param_choice_fixed) 
-            self._classifier.fit(data, y)
+
+            transformed_data = self._data_processor.simple_transform_data(data)
+            self._classifier.fit(transformed_data, y)
 
     def _basic_predict(self, F, info_dict):
         data = self._convert_nan_to_num(F, info_dict)
-        probs = self._classifier.predict_proba(data)[:,1]
+        transformed_data = self._data_processor.simple_transform_data(data)
+        probs = self._classifier.predict_proba(transformed_data)[:,1]
         return probs
 
     def _convert_nan_to_num(self, F, info_dict):
