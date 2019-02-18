@@ -327,12 +327,12 @@ class Model:
 
     def _basic_fit(self, F, y, info_dict):
         data = self._convert_nan_to_num(F, info_dict)
+        y = y.reshape((-1,))
         # if self._data_processor.is_uninitialized:
         #     self._data_processor.preprocess(data)
 
         print('data.shape: {}'.format(data.shape))
         print('y.shape: {}'.format(y.shape))
-        print('y.ravel().shape'.format(y.ravel().shape))
 
         if self._has_sufficient_time(info_dict) or self._classifier is None:
             self._classifier = LGBMClassifier(random_state=20, min_data=1, min_data_in_bin=1)
