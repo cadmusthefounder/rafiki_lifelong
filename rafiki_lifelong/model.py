@@ -20,7 +20,7 @@ from sklearn.linear_model import LogisticRegression
 from stream_processor_old import *
 
 params = {
-    'algo': Algo.FACEBOOK_LR
+    'algo': Algo.BASIC
 }
 
 class Model:
@@ -63,7 +63,30 @@ class Model:
             }
         elif params['algo'] == Algo.FACEBOOK_LR:
             self._dataset_budget_threshold = 0.8
-            self._max_train_data = 50000
+            self._max_train_data = 100000
+            self.batch_size = 25000
+            self.delta_n_estimators = 50
+            self.delta_num_leaves = 10
+            self.delta_learning_rate = 0.005
+            self.delta_max_depth = 1
+            self.delta_feature_fraction = 0.1
+            self.delta_bagging_fraction = 0.1
+            self.delta_bagging_freq = 1
+            self.max_evaluation = 30    
+            self.param_choice_fixed = { 
+                'n_estimators': 75, 
+                'learning_rate': 0.01, 
+                'num_leaves': 15, 
+                'feature_fraction': 0.6, 
+                'bagging_fraction': 0.6, 
+                'bagging_freq': 2, 
+                'boosting_type': 'gbdt', 
+                'objective': 'binary', 
+                'metric': 'auc' 
+            }
+        elif params['algo'] == Algo.BASIC:
+            self._dataset_budget_threshold = 0.8
+            self._max_train_data = 100000
             self.batch_size = 25000
             self.delta_n_estimators = 50
             self.delta_num_leaves = 10
@@ -117,6 +140,8 @@ class Model:
             return self._original_fit(F, y, info_dict)
         elif params['algo'] == Algo.FACEBOOK_LR:
             return self._facebook_lr_fit(F, y, info_dict)
+        elif params['algo'] == Algo.BASIC:
+            return self._basic_fit(F, y, info_dict)
 
     def predict(self, F, data_info, time_info):
         '''
@@ -137,6 +162,8 @@ class Model:
             return self._original_predict(F, info_dict)
         elif params['algo'] == Algo.FACEBOOK_LR:
             return self._facebook_lr_predict(F, info_dict)
+        elif params['algo'] == Algo.BASIC:
+            return self._basic_predict(F, info_dict)
 
     def save(self, path="./"):
         pickle.dump(self, open(path + '_model.pickle', "w"))
@@ -203,7 +230,6 @@ class Model:
             probs = self._classifier.predict_proba(self._data_processor.transform_data(data))[:,1]
             return probs
         else:
-            print(156)
             print('BATCH')
             print('data.shape: {}'.format(data.shape))
             results = np.array([]) ## for chunking results to handle memory limit
@@ -213,8 +239,7 @@ class Model:
                 del Xsplit
 
             print('results.shape: {}'.format(results.shape))
-            print('resutls.transposed.shape: {}'.format(results.T.shape))
-            return results.T
+            return results
         return []
 
     def _facebook_lr_fit(self, F, y, info_dict):
@@ -282,7 +307,6 @@ class Model:
             actual_probs = self._classifier2.predict_proba(new_probs)[:,1]
             return actual_probs
         else:
-            print(204)
             print('BATCH')
             print('data.shape: {}'.format(data.shape))
             results = np.array([]) ## for chunking results to handle memory limit
@@ -298,7 +322,73 @@ class Model:
                 del actual_probs
 
             print('results.shape: {}'.format(results.shape))
-            print('resutls.transposed.shape: {}'.format(results.T.shape))
+            return results
+        return []
+
+    def _basic_fit(self, F, y, info_dict):
+        data = self._convert_nan_to_num(F, info_dict)
+        # if self._data_processor.is_uninitialized:
+        #     self._data_processor.preprocess(data)
+
+        sampled_data, sampled_labels = self._sampler.majority_undersampling(data, y)
+
+        if len(self._train_data) == 0 and len(self._train_labels) == 0:
+            self._train_data = sampled_data
+            self._train_labels = sampled_labels
+        else:
+            self._train_data = np.concatenate((self._train_data, sampled_data), axis=0)
+            self._train_labels = np.concatenate((self._train_labels, sampled_labels), axis=0)
+
+    def _basic_predict(self, F, info_dict):
+        data = self._convert_nan_to_num(F, info_dict)
+        if self._has_sufficient_time(info_dict) or self._classifier is None:
+            # self._data_processor.preprocess(data)
+            # self._data_processor.prepare_frequency_map()
+
+            current_train_data = self._train_data
+            current_train_labels = self._train_labels
+
+            print('self._train_data.shape: {}'.format(self._train_data.shape))
+            print('self._train_labels.shape: {}'.format(self._train_labels.shape))
+            print('self._train_data.size: {}'.format(self._train_data.size))
+            print('len(self._train_data): {}'.format(len(self._train_data)))
+            print('self._max_train_data: {}'.format(self._max_train_data))
+
+            if self._too_much_training_data():
+                remove_percentage = 1.0 - (float(self._max_train_data) / len(self._train_data))
+                print('remove_percentage: {}'.format(remove_percentage))
+                current_train_data, current_train_labels = self._sampler.random_sample_in_order(self._train_data, \
+                                                                                                self._train_labels.reshape(-1,1), \
+                                                                                                remove_percentage)
+                print('current_train_data.shape: {}'.format(current_train_data.shape))
+                print('current_train_labels: {}'.format(current_train_labels.shape))
+                self._train_data, self._train_labels = current_train_data, current_train_labels.reshape((-1,))
+                
+                print('new self._train_data.shape: {}'.format(self._train_data.shape))
+                print('new self._train_labels.shape: {}'.format(self._train_labels.shape))
+
+            self._transformed_train_data = current_train_data
+            self._transformed_train_labels = current_train_labels
+            if not self.best_hyperparams:
+                self._find_best_hyperparameters()
+            
+            self._classifier = LGBMClassifier(random_state=20, min_data=1, min_data_in_bin=1)
+            self._classifier.set_params(**self.best_hyperparams) 
+            self._classifier.fit(self._transformed_train_data, self._transformed_train_labels.ravel())
+        
+        if data.shape[0] <= self.batch_size: ### if it is relatively small array
+            probs = self._classifier.predict_proba(data)[:,1]
+            return probs
+        else:
+            print('BATCH')
+            print('data.shape: {}'.format(data.shape))
+            results = np.array([]) ## for chunking results to handle memory limit
+            for i in range(0, data.shape[0], self.batch_size):
+                Xsplit = data[i:(i+self.batch_size),:]
+                results = np.append(results,self._classifier.predict_proba(Xsplit)[:,1])
+                del Xsplit
+
+            print('results.shape: {}'.format(results.shape))
             return results
         return []
 

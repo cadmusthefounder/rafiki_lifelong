@@ -1,4 +1,5 @@
 class Algo:
     OLD_CODE = 'OLD_CODE'
+    BASIC = 'BASIC'
     ORIGINAL = 'ORIGINAL'
     FACEBOOK_LR = 'FACEBOOK_LR'

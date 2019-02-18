@@ -82,7 +82,11 @@ class DataProcessor:
             result.append(hour)
             result.append(minute)
 
-        return np.array(result).T
+        result = np.array(result)
+        print('Transformed Data')
+        print('result.shape: {}'.format(result.shape))
+        print('result.T.shape: {}'.format(result.T.shape))
+        return result.T
 
     def _get_min_time(self, data, col_index):
         date_col = data[:,col_index].astype(float)
