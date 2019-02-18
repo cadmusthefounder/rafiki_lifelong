@@ -330,7 +330,7 @@ class Model:
         # if self._data_processor.is_uninitialized:
         #     self._data_processor.preprocess(data)
 
-        print('data.shape: {}'.format(F.shape))
+        print('data.shape: {}'.format(data.shape))
         print('y.shape: {}'.format(y.shape))
         print('y.ravel().shape'.format(y.ravel().shape))
 
