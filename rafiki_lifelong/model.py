@@ -330,67 +330,19 @@ class Model:
         # if self._data_processor.is_uninitialized:
         #     self._data_processor.preprocess(data)
 
-        sampled_data, sampled_labels = self._sampler.majority_undersampling(data, y)
+        print('data.shape: {}'.format(F.shape))
+        print('y.shape: {}'.format(y.shape))
+        print('y.ravel().shape'.format(y.ravel().shape))
 
-        if len(self._train_data) == 0 and len(self._train_labels) == 0:
-            self._train_data = sampled_data
-            self._train_labels = sampled_labels
-        else:
-            self._train_data = np.concatenate((self._train_data, sampled_data), axis=0)
-            self._train_labels = np.concatenate((self._train_labels, sampled_labels), axis=0)
+        if self._has_sufficient_time(info_dict) or self._classifier is None:
+            self._classifier = LGBMClassifier(random_state=20, min_data=1, min_data_in_bin=1)
+            self._classifier.set_params(**self.param_choice_fixed) 
+            self._classifier.fit(data, y)
 
     def _basic_predict(self, F, info_dict):
         data = self._convert_nan_to_num(F, info_dict)
-        if self._has_sufficient_time(info_dict) or self._classifier is None:
-            # self._data_processor.preprocess(data)
-            # self._data_processor.prepare_frequency_map()
-
-            current_train_data = self._train_data
-            current_train_labels = self._train_labels
-
-            print('self._train_data.shape: {}'.format(self._train_data.shape))
-            print('self._train_labels.shape: {}'.format(self._train_labels.shape))
-            print('self._train_data.size: {}'.format(self._train_data.size))
-            print('len(self._train_data): {}'.format(len(self._train_data)))
-            print('self._max_train_data: {}'.format(self._max_train_data))
-
-            if self._too_much_training_data():
-                remove_percentage = 1.0 - (float(self._max_train_data) / len(self._train_data))
-                print('remove_percentage: {}'.format(remove_percentage))
-                current_train_data, current_train_labels = self._sampler.random_sample_in_order(self._train_data, \
-                                                                                                self._train_labels.reshape(-1,1), \
-                                                                                                remove_percentage)
-                print('current_train_data.shape: {}'.format(current_train_data.shape))
-                print('current_train_labels: {}'.format(current_train_labels.shape))
-                self._train_data, self._train_labels = current_train_data, current_train_labels.reshape((-1,))
-                
-                print('new self._train_data.shape: {}'.format(self._train_data.shape))
-                print('new self._train_labels.shape: {}'.format(self._train_labels.shape))
-
-            self._transformed_train_data = current_train_data
-            self._transformed_train_labels = current_train_labels
-            if not self.best_hyperparams:
-                self._find_best_hyperparameters()
-            
-            self._classifier = LGBMClassifier(random_state=20, min_data=1, min_data_in_bin=1)
-            self._classifier.set_params(**self.best_hyperparams) 
-            self._classifier.fit(self._transformed_train_data, self._transformed_train_labels.ravel())
-        
-        if data.shape[0] <= self.batch_size: ### if it is relatively small array
-            probs = self._classifier.predict_proba(data)[:,1]
-            return probs
-        else:
-            print('BATCH')
-            print('data.shape: {}'.format(data.shape))
-            results = np.array([]) ## for chunking results to handle memory limit
-            for i in range(0, data.shape[0], self.batch_size):
-                Xsplit = data[i:(i+self.batch_size),:]
-                results = np.append(results,self._classifier.predict_proba(Xsplit)[:,1])
-                del Xsplit
-
-            print('results.shape: {}'.format(results.shape))
-            return results
-        return []
+        probs = self._classifier.predict_proba(data)[:,1]
+        return probs
 
     def _convert_nan_to_num(self, F, info_dict):
         # Convert time and numerical nan
